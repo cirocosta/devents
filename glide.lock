@@ -1,0 +1,16 @@
+hash: 4b57a2b8c8dc2655b3da67a0a1a718e0a6862bfbede63d5c792fe60857e05dd0
+updated: 2017-07-03T21:53:43.226362178-03:00
+imports:
+- name: github.com/docker/docker
+  version: 90d35abf7b3535c1c319c872900fbd76374e521c
+  subpackages:
+  - client
+- name: github.com/fluent/fluent-logger-golang
+  version: 28bdb662295c1b7aca09c1a4edbf9430010775a9
+  subpackages:
+  - fluent
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/sirupsen/logrus
+  version: 202f25545ea4cf9b191ff7f846df5d87c9382c2b
+testImports: []

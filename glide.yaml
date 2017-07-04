@@ -1,0 +1,14 @@
+package: github.com/cirocosta/devents
+import:
+- package: github.com/fluent/fluent-logger-golang
+  version: v1.2.1
+  subpackages:
+  - fluent
+- package: github.com/sirupsen/logrus
+  version: v1.0.0
+- package: github.com/pkg/errors
+  version: v0.8.0
+- package: github.com/docker/docker
+  version: v17.05.0-ce-rc3
+  subpackages:
+  - client
