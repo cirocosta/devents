@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/docker/docker/client"
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/pkg/errors"
 )
@@ -12,6 +13,7 @@ type Config struct {
 }
 
 type Devents struct {
+	docker *client.Client
 	writer *fluent.Fluent
 }
 
@@ -28,7 +30,15 @@ func New(cfg Config) (dev Devents, err error) {
 		return
 	}
 
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		err = errors.Wrapf(err,
+			"Couldn't initialize docker client")
+		return
+	}
+
 	dev.writer = writer
+	dev.docker = cli
 	return
 }
 
