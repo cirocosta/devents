@@ -12,6 +12,18 @@
 - "What images are being pulled the most?"
 
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Collections](#collections)
+- [Aggregators](#aggregators)
+  - [Stdout](#stdout)
+  - [Fluentd](#fluentd)
+- [Metrics](#metrics)
+- [LICENSE](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ### Collection
 
 Once events are received `devents` is capable of enhancing the event message with more information. For instance, `{type=container,action=start}` can be enhanced with environment variables, ports and node information.
@@ -40,6 +52,9 @@ devents \
         --fluentd-host=localhost \
         --fluentd-tag=com.mytag
 ```
+
+
+### Metrics
 
 
 ### LICENSE

@@ -11,4 +11,7 @@ fmt:
 	cd ./devents && gofmt -s -w .
 	cd ./lib && gofmt -s -w .
 
-.PHONY: install build fmt image
+toc:
+	doctoc ./README.md
+
+.PHONY: install build fmt image toc
