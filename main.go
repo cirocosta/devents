@@ -15,6 +15,15 @@ type CLIArguments struct {
 	DockerHost string `arg:"env,help:docker daemon to connect to"`
 }
 
+func (a CLIArguments) ToLogrusFields() log.Fields {
+	return log.Fields{
+		"fluentd-host": a.FluentdHost,
+		"fluentd-tag":  a.FluentdTag,
+		"fluentd-port": a.FluentdPort,
+		"docker-host":  a.DockerHost,
+	}
+}
+
 var (
 	args = CLIArguments{
 		DockerHost: "unix://var/run/docker.sock",
@@ -23,7 +32,7 @@ var (
 
 func main() {
 	arg.MustParse(&args)
-	var logger = log.WithField("args", args)
+	var logger = log.WithFields(args.ToLogrusFields())
 
 	dev, err := lib.New(lib.Config{})
 	if err != nil {
