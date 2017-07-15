@@ -18,6 +18,7 @@
 
 
 - [Collection](#collection)
+  - [Container](#container)
 - [Aggregators](#aggregators)
   - [Stdout](#stdout)
   - [Fluentd](#fluentd)

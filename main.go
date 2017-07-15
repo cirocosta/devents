@@ -12,6 +12,8 @@ type CLIArguments struct {
 	FluentdPort int    `arg:"help:fluentd port to connect to"`
 
 	DockerHost string `arg:"env,help:docker daemon to connect to"`
+
+	Aggregator []string `arg:"-a,separate,help:aggregators to use"`
 }
 
 func (a CLIArguments) ToLogrusFields() log.Fields {
@@ -20,13 +22,19 @@ func (a CLIArguments) ToLogrusFields() log.Fields {
 		"fluentd-tag":  a.FluentdTag,
 		"fluentd-port": a.FluentdPort,
 		"docker-host":  a.DockerHost,
+		"aggregator":   a.Aggregator,
 	}
 }
 
 var (
 	args = CLIArguments{
-		DockerHost: "unix://var/run/docker.sock",
-		FluentdTag: "devents",
+		DockerHost:  "unix://var/run/docker.sock",
+		FluentdTag:  "devents",
+		FluentdHost: "localhost",
+		FluentdPort: 24224,
+		Aggregator: []string{
+			"stdout",
+		},
 	}
 )
 

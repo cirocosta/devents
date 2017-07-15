@@ -10,7 +10,7 @@ install:
 
 fmt:
 	gofmt -s -w ./main.go
-	cd ./lib && gofmt -s -w .
+	find ./lib -name "*.go" -exec gofmt -s -w {} \;
 
 toc:
 	doctoc ./README.md
