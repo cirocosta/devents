@@ -7,11 +7,12 @@
 
 `devents` aims at providing visibility into `docker events` across multiple hosts. It allows you to answer the questions like:
 
-- "At a given point in time, what was happening in this daemon? Did it create a container? Did it attach the network to the container?"
-- "What is the rate of container creation that we're seeing in the set of docker daemon labelled with `com.testing=test-machines`?"
-- "What images are being pulled the most?"
+> "At a given point in time, what was happening in this daemon? Did it create a container? Did it attach the network to the container?"
+> "What is the rate of container creation that we're seeing in the set of docker daemon labelled with `com.testing=test-machines`?"
+> "What images are being pulled the most?"
 
-
+###  Table of Contents
+ 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
