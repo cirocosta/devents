@@ -1,42 +1,20 @@
 package lib
 
 import (
-	"github.com/docker/docker/client"
-	"github.com/fluent/fluent-logger-golang/fluent"
-	"github.com/pkg/errors"
+	"github.com/cirocosta/devents/lib/aggregators"
+	"github.com/cirocosta/devents/lib/collectors"
 )
 
 type Devents struct {
-	docker *client.Client
-	writer *fluent.Fluent
+	collector   collectors.Collector
+	aggregators []aggregators.Aggregator
 }
 
 func New(cfg Config) (dev Devents, err error) {
-	if cfg.FluentdHost == "" || cfg.FluentdTag == "" || cfg.FluentdPort == 0 {
-		err = errors.Errorf("All configuration must be filled.")
-		return
-	}
-
-	writer, err := fluent.New(fluent.Config{})
-	if err != nil {
-		err = errors.Wrapf(err,
-			"Couldn't instantiate fluent")
-		return
-	}
-
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		err = errors.Wrapf(err,
-			"Couldn't initialize docker client")
-		return
-	}
-
-	dev.writer = writer
-	dev.docker = cli
 	return
 }
 
+// Close closes all aggregators and collectors
 func (dev Devents) Close() (err error) {
-	err = dev.writer.Close()
 	return
 }

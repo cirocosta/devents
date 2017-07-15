@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,4 +23,20 @@ func (a Config) ToLogrusFields() logrus.Fields {
 		"docker-host":  a.DockerHost,
 		"aggregator":   a.Aggregator,
 	}
+}
+
+func (a Config) Validate() (err error) {
+	if len(a.Aggregator) == 0 {
+		err = errors.New(
+			"At least one aggregator must be specified.")
+		return
+	}
+
+	if a.DockerHost == "" {
+		err = errors.New(
+			"A non-empty docker-host must be specified")
+		return
+	}
+
+	return
 }
