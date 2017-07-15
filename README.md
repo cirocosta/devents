@@ -16,7 +16,8 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Collections](#collections)
+
+- [Collection](#collection)
 - [Aggregators](#aggregators)
   - [Stdout](#stdout)
   - [Fluentd](#fluentd)
@@ -56,6 +57,14 @@ devents \
 
 
 ### Metrics
+
+`devents` is also able to perform metric collection. It does so via `prometheus`. By default it exposes the metrics endpoint at `/metrics` on port `9090`. These are configurable:
+
+```
+devents \
+        --metrics-path /prometheus-metrics \
+        --metrics-port 1337
+```
 
 
 ### LICENSE

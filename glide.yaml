@@ -5,7 +5,11 @@ import:
   subpackages:
   - fluent
 - package: github.com/sirupsen/logrus
-  version: v1.0.0
+  version: master
+- package: github.com/Sirupsen/logrus
+  repo: https://github.com/sirupsen/logrus
+  vcs: git
+  version: master
 - package: github.com/pkg/errors
   version: v0.8.0
 - package: github.com/docker/docker

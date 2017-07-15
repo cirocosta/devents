@@ -2,13 +2,10 @@ image:
 	docker build -t cirocosta/devents .
 
 install:
-	cd ./devents && go install -v
-
-build:
-	cd ./devents && go build -v
+	go install -v
 
 fmt:
-	cd ./devents && gofmt -s -w .
+	gofmt -s -w ./main.go
 	cd ./lib && gofmt -s -w .
 
 toc:
