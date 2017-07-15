@@ -9,7 +9,5 @@ RUN set -ex && \
   CGO_ENABLED=0 go build -v -a -ldflags '-extldflags "-static"' && \
   mv ./devents /usr/bin/devents
 
-FROM busybox
-COPY --from=builder /usr/bin/devents /devents
-
-CMD [ "devents" ]
+FROM alpine
+COPY --from=builder /usr/bin/devents /usr/local/bin/devents
