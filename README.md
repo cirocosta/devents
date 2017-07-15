@@ -28,7 +28,15 @@
 
 ### Collection
 
-Once events are received `devents` is capable of enhancing the event message with more information. For instance, `{type=container,action=start}` can be enhanced with environment variables, ports and node information.
+Once events are received `devents` is capable of enhancing the event message with more information. For instance, `{type=container,action=start}` can be enhanced with environment variables, ports and node information. 
+
+The extra parameters to gather are:
+
+#### Container
+
+- `env`
+- `mounts`
+- `ports`
 
 
 ### Aggregators

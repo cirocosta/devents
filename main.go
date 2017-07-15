@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/cirocosta/devents/lib"
-
 	arg "github.com/alexflint/go-arg"
+	lib "github.com/cirocosta/devents/lib"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,6 +26,7 @@ func (a CLIArguments) ToLogrusFields() log.Fields {
 var (
 	args = CLIArguments{
 		DockerHost: "unix://var/run/docker.sock",
+		FluentdTag: "devents",
 	}
 )
 

@@ -1,3 +1,7 @@
+infra:
+	cd ./infra && \
+		docker-compose up -d
+
 image:
 	docker build -t cirocosta/devents .
 
@@ -11,4 +15,4 @@ fmt:
 toc:
 	doctoc ./README.md
 
-.PHONY: install build fmt image toc
+.PHONY: install build fmt image toc infra
