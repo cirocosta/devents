@@ -6,12 +6,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Config struct {
-	FluentdHost string
-	FluentdTag  string
-	FluentdPort int
-}
-
 type Devents struct {
 	docker *client.Client
 	writer *fluent.Fluent
