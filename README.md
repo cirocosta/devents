@@ -31,7 +31,7 @@
 ### Usage
 
 ```
-devents -h
+devents --help
 Usage: devents [--fluentdhost FLUENTDHOST] [--fluentdtag FLUENTDTAG] [--fluentdport FLUENTDPORT] [--dockerhost DOCKERHOST] [--aggregator AGGREGATOR] [--metricspath METRICSPATH] [--metricsport METRICSPORT]
 
 Options:
@@ -49,8 +49,16 @@ Options:
                          path to use for prometheus scrapping [default: /metrics]
   --metricsport METRICSPORT
                          port to listen for prometheus scrapping [default: 9103]
+  --metricslabel METRICSPORT
+                         extra label to extract from attributes to include in the metrics
   --help, -h             display this help and exit
 ```
+
+
+#### Container
+
+- `labels`: specify a list of labels to extract volumes from.
+
 
 ### Aggregators
 
@@ -87,6 +95,20 @@ devents \
         --metrics-path /prometheus-metrics \
         --metrics-port 1337
 ```
+
+#### Label Retrieval
+
+Some event types support the extraction of extra parameters (attributes).
+
+##### label
+
+> Supported by: `image` and `container`
+
+A great use of this is in metrics of user-defined namespacing. For instance:
+
+- containers are created with labels `com.mypaas.project=<project-id`
+- `devents` is initiated with `--metrics-label com.mypaas.project`
+- query for the instant rate of `project-specific` container creation: `irate(devents_container_start{com-mypaas-project="prjectId"}[5m])`
 
 
 ### LICENSE

@@ -12,11 +12,13 @@ import (
 )
 
 type PrometheusConfig struct {
-	Path string
-	Port int
+	Path   string
+	Port   int
+	Labels []string
 }
 
 type Prometheus struct {
+	labels []string
 	port   int
 	path   string
 	logger *log.Entry
@@ -28,24 +30,27 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 	agg.logger = log.WithField("aggregator", "prometheus")
 	agg.port = cfg.Port
 	agg.path = cfg.Path
+	agg.labels = cfg.Labels
+
+	var containerActionLabels = []string{"action"}
+	for _, label := range agg.labels {
+		containerActionLabels = append(containerActionLabels, label)
+	}
+
+	agg.containerActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name:      "container_action",
+		Help:      "Docker container actions performed",
+		Subsystem: "devents",
+	}, []string{"action"})
+
+	prometheus.MustRegister(agg.containerActions)
 
 	agg.logger.Info("aggregator initialized")
 	return
 }
 
-func (p Prometheus) MustSetupCounters() {
-	p.containerActions = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "devents_container_action",
-		Help: "Docker container actions performed",
-	}, []string{"action"})
-
-	prometheus.MustRegister(p.containerActions)
-}
-
 func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 	var handlerErrChan = make(chan error)
-
-	p.MustSetupCounters()
 
 	go func() {
 		http.Handle(p.path, promhttp.Handler())
@@ -69,7 +74,19 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 		case ev := <-evs:
 			switch ev.Type {
 			case events.ContainerEventType:
-				p.containerActions.WithLabelValues(ev.Action).Inc()
+				labelValues := []string{
+					ev.Action,
+				}
+
+				attrs := ev.Actor.Attributes
+				for _, label := range p.labels {
+					v, present := attrs[label]
+					if !present {
+						v = "_none"
+					}
+					labelValues = append(labelValues, v)
+				}
+				p.containerActions.WithLabelValues(labelValues...).Inc()
 			}
 
 			p.logger.

@@ -1,6 +1,8 @@
 package aggregators
 
 import (
+	"strconv"
+
 	"github.com/docker/docker/api/types/events"
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/pkg/errors"
@@ -41,26 +43,22 @@ func NewFluentd(cfg FluentdConfig) (agg Fluentd, err error) {
 	return
 }
 
-type FluentdMessage struct {
-	Status   string `json:"status"`
-	ID       string `json:"id"`
-	ActorId  string `json:"actorId"`
-	From     string `json:"from"`
-	Type     string `json:"type"`
-	Action   string `json:"action"`
-	TimeNano int64  `json:"timeNano"`
-}
-
-func ConvertEventToFluentdMessage(ev events.Message) FluentdMessage {
-	return FluentdMessage{
-		ID:       ev.ID,
-		ActorId:  ev.Actor.ID,
-		Status:   ev.Status,
-		From:     ev.From,
-		Type:     ev.Type,
-		Action:   ev.Action,
-		TimeNano: ev.TimeNano,
+func ConvertEventToMap(ev events.Message) map[string]string {
+	var evMap = map[string]string{
+		"id":       ev.ID,
+		"actorId":  ev.Actor.ID,
+		"status":   ev.Status,
+		"from":     ev.From,
+		"type":     ev.Type,
+		"action":   ev.Action,
+		"timeNano": strconv.FormatInt(ev.TimeNano, 10),
 	}
+
+	for k, v := range ev.Actor.Attributes {
+		evMap["attrs."+k] = v
+	}
+
+	return evMap
 }
 
 func (f Fluentd) Run(evs <-chan events.Message, errs <-chan error) {
@@ -73,7 +71,7 @@ func (f Fluentd) Run(evs <-chan events.Message, errs <-chan error) {
 			f.logger.WithError(err).Info("errored")
 		case ev := <-evs:
 			f.logger.Info("received evt")
-			err := f.fluent.Post(prefix, ConvertEventToFluentdMessage(ev))
+			err := f.fluent.Post(prefix, ConvertEventToMap(ev))
 			if err != nil {
 				f.logger.
 					WithError(err).
