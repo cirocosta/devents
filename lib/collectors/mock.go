@@ -10,6 +10,6 @@ func NewMock() (agg Mock, err error) {
 	return
 }
 
-func (Mock) Collect () (<-chan events.ContainerEvent,  <-chan error) {
+func (Mock) Collect() (<-chan events.ContainerEvent, <-chan error) {
 	return nil, nil
 }

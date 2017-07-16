@@ -55,7 +55,15 @@ func New(cfg Config) (dev Devents, err error) {
 
 func (dev Devents) Run() {
 	log.Info("starting ev loop")
-	dev.collector.Collect()
+	cevents, cerrors := dev.collector.Collect()
+	for {
+		select {
+		case err := <-cerrors:
+			log.WithError(err).Fatal("Errored waiting for events")
+		case ev := <-cevents:
+			log.Println(ev)
+		}
+	}
 }
 
 // Close closes all aggregators and collectors

@@ -4,6 +4,6 @@ import (
 	"github.com/cirocosta/devents/lib/events"
 )
 
-type Collector interface{
-	Collect() (<-chan events.ContainerEvent,  <-chan error)
+type Collector interface {
+	Collect() (<-chan events.ContainerEvent, <-chan error)
 }

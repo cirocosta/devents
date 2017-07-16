@@ -2,15 +2,14 @@ package collectors
 
 import (
 	"context"
+	"io"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/cirocosta/devents/lib/events"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
-	"github.com/cirocosta/devents/lib/events"
 
 	dockerevents "github.com/docker/docker/api/types/events"
-	log "github.com/sirupsen/logrus"
 )
 
 type DockerConfig struct{}
@@ -31,20 +30,37 @@ func NewDocker(cfg DockerConfig) (collector Docker, err error) {
 	return
 }
 
-func (d Docker) Collect() (<-chan events.ContainerEvent,  <-chan error) {
+func (d Docker) Collect() (<-chan events.ContainerEvent, <-chan error) {
+	var cevents = make(chan events.ContainerEvent)
+	var cerrors = make(chan error)
+
 	messages, errs := d.docker.Events(context.Background(), types.EventsOptions{})
-	for {
-		select {
-		case err := <-errs:
-			log.WithError(err).Error("Errored.")
-		case e := <-messages:
-			switch e.Type {
-			case dockerevents.ContainerEventType:
+	go func() {
+		defer close(cevents)
+		defer close(cerrors)
+
+		for {
+			select {
+			case err := <-errs:
+				if err != nil && err != io.EOF {
+					err = errors.Wrapf(err,
+						"Unexpected error happened while receiving events")
+					cerrors <- err
+				}
+				return
+			case e := <-messages:
+				switch e.Type {
+				case dockerevents.ContainerEventType:
+					cevents <- events.ContainerEvent{
+						Action:      e.Action,
+						Image:       e.From,
+						ContainerId: e.ID,
+						TimeNano:    e.TimeNano,
+					}
+				}
 			}
-			spew.Dump(e)
 		}
-	}
+	}()
 
-	return nil, nil
+	return cevents, cerrors
 }
-
