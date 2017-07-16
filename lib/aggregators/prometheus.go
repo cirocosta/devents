@@ -25,6 +25,14 @@ type Prometheus struct {
 	logger *log.Entry
 
 	containerActions *prometheus.CounterVec
+	imageActions     *prometheus.CounterVec
+	networkActions   *prometheus.CounterVec
+	pluginActions    *prometheus.CounterVec
+	volumeActions    *prometheus.CounterVec
+
+	// not on stable yet
+	// serviceActions   *prometheus.CounterVec
+	// nodeActions      *prometheus.CounterVec
 }
 
 func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
@@ -45,6 +53,30 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 		Help:      "Docker container actions performed",
 		Subsystem: "devents",
 	}, containerActionLabels)
+
+	agg.imageActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name:      "image_action",
+		Help:      "Docker image actions performed",
+		Subsystem: "devents",
+	}, containerActionLabels)
+
+	agg.networkActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name:      "network_action",
+		Help:      "Docker network actions performed",
+		Subsystem: "devents",
+	}, []string{"action"})
+
+	agg.pluginActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name:      "plugin_action",
+		Help:      "Docker plugin actions performed",
+		Subsystem: "devents",
+	}, []string{"action"})
+
+	agg.volumeActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name:      "volume_action",
+		Help:      "Docker volume actions performed",
+		Subsystem: "devents",
+	}, []string{"action"})
 
 	prometheus.MustRegister(agg.containerActions)
 
@@ -86,13 +118,26 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 					v, _ := attrs[label]
 					labelValues = append(labelValues, v)
 				}
-				log.Info("labelvalues", labelValues)
 				p.containerActions.WithLabelValues(labelValues...).Inc()
+			case events.ImageEventType:
+				labelValues := []string{
+					ev.Action,
+				}
+
+				attrs := ev.Actor.Attributes
+				for _, label := range p.labels {
+					v, _ := attrs[label]
+					labelValues = append(labelValues, v)
+				}
+				p.imageActions.WithLabelValues(labelValues...).Inc()
+			case events.NetworkEventType:
+				p.networkActions.WithLabelValues(ev.Action).Inc()
+			case events.PluginEventType:
+				p.pluginActions.WithLabelValues(ev.Action).Inc()
+			case events.VolumeEventType:
+				p.volumeActions.WithLabelValues(ev.Action).Inc()
 			}
 
-			p.logger.
-				WithField("event", ev).
-				Info("event received")
 		}
 	}
 }
