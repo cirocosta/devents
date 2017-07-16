@@ -6,7 +6,7 @@ ADD ./vendor /go/src/github.com/cirocosta/devents/vendor
 
 WORKDIR /go/src/github.com/cirocosta/devents
 RUN set -ex && \
-  cp -r ./vendor/github.com/Sirupsen ./vendor/github.com/sirupsen && \
+  cp -r ./vendor/github.com/Sirupsen ./vendor/github.com/sirupsen || true && \
   CGO_ENABLED=0 go build -v -a -ldflags '-extldflags "-static"' && \
   mv ./devents /usr/bin/devents
 
