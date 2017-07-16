@@ -30,5 +30,6 @@ func main() {
 	}
 	defer dev.Close()
 
+	logger.Info("starting")
 	dev.Run()
 }

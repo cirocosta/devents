@@ -55,11 +55,16 @@ func New(cfg Config) (dev Devents, err error) {
 }
 
 func (dev Devents) Run() {
-	var evChannels = make([]chan events.ContainerEvent, len(dev.aggregators))
-	var errChannels = make([]chan error, len(dev.aggregators))
+	var evChannels []chan events.ContainerEvent
+	var errChannels []chan error
 
 	for idx := range dev.aggregators {
+		evChannels = append(evChannels, make(chan events.ContainerEvent))
 		defer close(evChannels[idx])
+	}
+
+	for idx := range dev.aggregators {
+		errChannels = append(errChannels, make(chan error))
 		defer close(errChannels[idx])
 	}
 
@@ -74,6 +79,7 @@ func (dev Devents) Run() {
 	for {
 		select {
 		case err := <-cerrors:
+			log.WithError(err).Error("error reveid")
 			for _, chann := range errChannels {
 				chann <- err
 			}
@@ -81,10 +87,10 @@ func (dev Devents) Run() {
 			log.WithError(err).Fatal("Errored waiting for events")
 			return
 		case ev := <-cevents:
+			log.WithField("event", ev).Info("event received")
 			for _, chann := range evChannels {
 				chann <- ev
 			}
-			log.Println(ev)
 		}
 	}
 }
