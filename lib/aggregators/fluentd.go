@@ -1,6 +1,7 @@
 package aggregators
 
 import (
+	"github.com/cirocosta/devents/lib/events"
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/pkg/errors"
 )
@@ -29,5 +30,9 @@ func NewFluentd(cfg FluentdConfig) (aggregator Fluentd, err error) {
 	}
 
 	aggregator.fluent = logger
+	return
+}
+
+func (f Fluentd) Run(<-chan events.ContainerEvent, <-chan error) {
 	return
 }
