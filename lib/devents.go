@@ -35,6 +35,11 @@ func New(cfg Config) (dev Devents, err error) {
 			})
 		case "stdout":
 			aggregator, err = aggregators.NewStdout()
+		case "prometheus":
+			aggregator, err = aggregators.NewPrometheus(aggregators.PrometheusConfig{
+				Path: cfg.MetricsPath,
+				Port: cfg.MetricsPort,
+			})
 		default:
 			err = errors.Errorf(
 				"Unknown aggregator type %s", agg)

@@ -6,6 +6,8 @@ import:
   - fluent
 - package: github.com/sirupsen/logrus
   version: master
+  repo: https://github.com/sirupsen/logrus
+  vcs: git
 - package: github.com/Sirupsen/logrus
   version: master
   repo: https://github.com/sirupsen/logrus

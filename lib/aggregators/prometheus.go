@@ -1,11 +1,12 @@
 package aggregators
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/docker/docker/api/types/events"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,9 +17,11 @@ type PrometheusConfig struct {
 }
 
 type Prometheus struct {
-	port int
-	path string
+	port   int
+	path   string
 	logger *log.Entry
+
+	containerActions *prometheus.CounterVec
 }
 
 func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
@@ -30,14 +33,25 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 	return
 }
 
+func (p Prometheus) MustSetupCounters() {
+	p.containerActions = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "devents_container_action",
+		Help: "Docker container actions performed",
+	}, []string{"action"})
+
+	prometheus.MustRegister(p.containerActions)
+}
+
 func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 	var handlerErrChan = make(chan error)
 
-	go func () {
+	p.MustSetupCounters()
+
+	go func() {
 		http.Handle(p.path, promhttp.Handler())
 		err := http.ListenAndServe(fmt.Sprintf(":%d", p.port), nil)
 		if err != nil {
-			handlerErrChan<- err
+			handlerErrChan <- err
 		}
 	}()
 
@@ -53,6 +67,11 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 				WithError(err).
 				Error("events retrieval failed")
 		case ev := <-evs:
+			switch ev.Type {
+			case events.ContainerEventType:
+				p.containerActions.WithLabelValues(ev.Action).Inc()
+			}
+
 			p.logger.
 				WithField("event", ev).
 				Info("event received")
