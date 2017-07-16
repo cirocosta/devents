@@ -10,6 +10,9 @@
 > "At a given point in time, what was happening in this daemon? Did it create a container? Did it attach the network to the container?"
 > "What is the rate of container creation that we're seeing in the set of docker daemon labelled with `com.testing=test-machines`?"
 > "What images are being pulled the most?"
+> "How many containers are connecting to a network called 'blabla'?"
+> "When did containers labelled 'com.myproject=hey' started failing the health checks?"
+> ""
 
 ###  Table of Contents
  
@@ -18,7 +21,7 @@
 
 
 - [Usage](#usage)
-  - [Container](#container)
+  - [Docker](#docker)
 - [Aggregators](#aggregators)
   - [Stdout](#stdout)
   - [Fluentd](#fluentd)
@@ -55,11 +58,15 @@ Options:
   --help, -h             display this help and exit
 ```
 
+#### Docker
 
-#### Container
-
-- `labels`: specify a list of labels to extract volumes from.
-
+```
+docker run \
+        --network host \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        cirocosta/devents \
+        devents -a prometheus
+```
 
 ### Aggregators
 
