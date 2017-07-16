@@ -64,19 +64,19 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 		Name:      "network_action",
 		Help:      "Docker network actions performed",
 		Subsystem: "devents",
-	}, []string{"action"})
+	}, []string{"action", "name", "type"})
 
 	agg.pluginActions = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name:      "plugin_action",
 		Help:      "Docker plugin actions performed",
 		Subsystem: "devents",
-	}, []string{"action"})
+	}, []string{"action", "name"})
 
 	agg.volumeActions = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name:      "volume_action",
 		Help:      "Docker volume actions performed",
 		Subsystem: "devents",
-	}, []string{"action"})
+	}, []string{"action", "driver"})
 
 	prometheus.MustRegister(agg.containerActions)
 	prometheus.MustRegister(agg.imageActions)
@@ -122,15 +122,29 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 					v, _ := attrs[label]
 					labelValues = append(labelValues, v)
 				}
-				p.containerActions.WithLabelValues(labelValues...).Inc()
+				p.containerActions.
+					WithLabelValues(labelValues...).
+					Inc()
 			case events.ImageEventType:
 				p.imageActions.WithLabelValues(ev.Action).Inc()
 			case events.NetworkEventType:
-				p.networkActions.WithLabelValues(ev.Action).Inc()
+				netName, _ := ev.Actor.Attributes["name"]
+				netType, _ := ev.Actor.Attributes["type"]
+
+				p.networkActions.
+					WithLabelValues(ev.Action, netName, netType).
+					Inc()
 			case events.PluginEventType:
-				p.pluginActions.WithLabelValues(ev.Action).Inc()
+				pluginName, _ := ev.Actor.Attributes["name"]
+
+				p.pluginActions.
+					WithLabelValues(ev.Action, pluginName).
+					Inc()
 			case events.VolumeEventType:
-				p.volumeActions.WithLabelValues(ev.Action).Inc()
+				volDriver, _ := ev.Actor.Attributes["driver"]
+				p.volumeActions.
+					WithLabelValues(ev.Action, volDriver).
+					Inc()
 			}
 
 		}
