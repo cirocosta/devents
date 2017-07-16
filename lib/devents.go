@@ -26,7 +26,6 @@ func New(cfg Config) (dev Devents, err error) {
 	for _, agg := range cfg.Aggregator {
 		var aggregator aggregators.Aggregator
 
-		log.WithField("type", agg).Info("initializing aggregator")
 		switch agg {
 		case "fluentd":
 			aggregator, err = aggregators.NewFluentd(aggregators.FluentdConfig{
@@ -68,10 +67,10 @@ func (dev Devents) Run() {
 		defer close(errChannels[idx])
 	}
 
-	for idx, aggregator := range dev.aggregators {
-		go func() {
-			aggregator.Run(evChannels[idx], errChannels[idx])
-		}()
+	for idx, agg := range dev.aggregators {
+		go func(agg aggregators.Aggregator) {
+			agg.Run(evChannels[idx], errChannels[idx])
+		}(agg)
 	}
 
 	log.Info("starting main ev loop")
@@ -79,7 +78,7 @@ func (dev Devents) Run() {
 	for {
 		select {
 		case err := <-cerrors:
-			log.WithError(err).Error("error reveid")
+			log.WithError(err).Error("error received")
 			for _, chann := range errChannels {
 				chann <- err
 			}

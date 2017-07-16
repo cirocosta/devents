@@ -6,13 +6,11 @@ import (
 )
 
 type Config struct {
-	FluentdHost string `arg:"help:fluentd host to connect to"`
-	FluentdTag  string `arg:"help:fluentd tag to add to the messages"`
-	FluentdPort int    `arg:"help:fluentd port to connect to"`
-
-	DockerHost string `arg:"env,help:docker daemon to connect to"`
-
-	Aggregator []string `arg:"-a,separate,help:aggregators to use"`
+	FluentdHost string   `arg:"help:fluentd host to connect to"`
+	FluentdTag  string   `arg:"help:fluentd tag to add to the messages"`
+	FluentdPort int      `arg:"help:fluentd port to connect to"`
+	DockerHost  string   `arg:"env,help:docker daemon to connect to"`
+	Aggregator  []string `arg:"-a,separate,help:aggregators to use"`
 }
 
 func (a Config) ToLogrusFields() logrus.Fields {
