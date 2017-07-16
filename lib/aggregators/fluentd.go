@@ -17,9 +17,9 @@ type Fluentd struct {
 
 func NewFluentd(cfg FluentdConfig) (aggregator Fluentd, err error) {
 	logger, err := fluent.New(fluent.Config{
-		Host:      cfg.Host,
-		Port:      cfg.Port,
-		TagPrefix: cfg.TagPrefix,
+		FluentHost: cfg.Host,
+		FluentPort: cfg.Port,
+		TagPrefix:  cfg.TagPrefix,
 	})
 
 	if err != nil {
