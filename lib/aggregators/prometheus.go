@@ -58,7 +58,7 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 		Name:      "image_action",
 		Help:      "Docker image actions performed",
 		Subsystem: "devents",
-	}, containerActionLabels)
+	}, []string{"action"})
 
 	agg.networkActions = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name:      "network_action",
@@ -79,6 +79,10 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 	}, []string{"action"})
 
 	prometheus.MustRegister(agg.containerActions)
+	prometheus.MustRegister(agg.imageActions)
+	prometheus.MustRegister(agg.networkActions)
+	prometheus.MustRegister(agg.pluginActions)
+	prometheus.MustRegister(agg.volumeActions)
 
 	agg.logger.Info("aggregator initialized")
 	return
@@ -120,16 +124,7 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 				}
 				p.containerActions.WithLabelValues(labelValues...).Inc()
 			case events.ImageEventType:
-				labelValues := []string{
-					ev.Action,
-				}
-
-				attrs := ev.Actor.Attributes
-				for _, label := range p.labels {
-					v, _ := attrs[label]
-					labelValues = append(labelValues, v)
-				}
-				p.imageActions.WithLabelValues(labelValues...).Inc()
+				p.imageActions.WithLabelValues(ev.Action).Inc()
 			case events.NetworkEventType:
 				p.networkActions.WithLabelValues(ev.Action).Inc()
 			case events.PluginEventType:

@@ -8,13 +8,14 @@ import (
 
 var (
 	config = lib.Config{
-		DockerHost:  "unix://var/run/docker.sock",
-		FluentdTag:  "devents",
-		FluentdHost: "localhost",
-		FluentdPort: 24224,
-		Aggregator:  []string{},
-		MetricsPath: "/metrics",
-		MetricsPort: 9103,
+		DockerHost:   "unix://var/run/docker.sock",
+		FluentdTag:   "devents",
+		FluentdHost:  "localhost",
+		FluentdPort:  24224,
+		Aggregator:   []string{},
+		MetricsPath:  "/metrics",
+		MetricsPort:  9103,
+		MetricsLabel: []string{"image"},
 	}
 )
 
