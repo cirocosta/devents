@@ -1,13 +1,24 @@
 package collectors
 
 import (
-	_ "github.com/docker/docker/client"
+	"github.com/docker/docker/client"
+	"github.com/pkg/errors"
 )
 
 type DockerConfig struct{}
 
-type Docker struct{}
+type Docker struct {
+	docker *client.Client
+}
 
-func NewDocker(cfg DockerConfig) (agg Docker, err error) {
+func NewDocker(cfg DockerConfig) (collector Docker, err error) {
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		err = errors.Wrapf(err,
+			"Couldn't instantiate docker client")
+		return
+	}
+
+	collector.docker = cli
 	return
 }

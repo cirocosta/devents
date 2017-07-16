@@ -1,13 +1,33 @@
 package aggregators
 
 import (
-	_ "github.com/fluent/fluent-logger-golang/fluent"
+	"github.com/fluent/fluent-logger-golang/fluent"
+	"github.com/pkg/errors"
 )
 
-type FluentdConfig struct{}
+type FluentdConfig struct {
+	Host      string
+	Port      int
+	TagPrefix string
+}
 
-type Fluentd struct{}
+type Fluentd struct {
+	fluent *fluent.Fluent
+}
 
-func NewFluentd(config FluentdConfig) (fluent Fluentd, err error) {
+func NewFluentd(cfg FluentdConfig) (aggregator Fluentd, err error) {
+	logger, err := fluent.New(fluent.Config{
+		Host:      cfg.Host,
+		Port:      cfg.Port,
+		TagPrefix: cfg.TagPrefix,
+	})
+
+	if err != nil {
+		err = errors.Wrapf(err,
+			"Couldn't instantiate fluentd with config %+v", cfg)
+		return
+	}
+
+	aggregator.fluent = logger
 	return
 }
