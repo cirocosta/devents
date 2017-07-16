@@ -3,7 +3,7 @@ package lib
 import (
 	"github.com/cirocosta/devents/lib/aggregators"
 	"github.com/cirocosta/devents/lib/collectors"
-	"github.com/cirocosta/devents/lib/events"
+	"github.com/docker/docker/api/types/events"
 	"github.com/pkg/errors"
 
 	log "github.com/sirupsen/logrus"
@@ -54,11 +54,11 @@ func New(cfg Config) (dev Devents, err error) {
 }
 
 func (dev Devents) Run() {
-	var evChannels []chan events.ContainerEvent
+	var evChannels []chan events.Message
 	var errChannels []chan error
 
 	for idx := range dev.aggregators {
-		evChannels = append(evChannels, make(chan events.ContainerEvent, 1))
+		evChannels = append(evChannels, make(chan events.Message, 1))
 		defer close(evChannels[idx])
 	}
 
@@ -74,35 +74,28 @@ func (dev Devents) Run() {
 	log.Info("starting main ev loop")
 	cevents, cerrors := dev.collector.Collect()
 
-	mainError := make(chan error)
-	go func() {
-		for {
-			select {
-			case err := <-cerrors:
-				log.WithError(err).Error("error received")
-				for _, chann := range errChannels {
-					chann <- err
-				}
+	for {
+		select {
+		case err := <-cerrors:
+			log.WithError(err).Error("error received")
+			for _, chann := range errChannels {
+				chann <- err
+			}
 
-				log.WithError(err).Fatal("Errored waiting for events")
-				mainError <- err
-				return
-			case ev := <-cevents:
-				log.Info("event received")
-				for idx, chann := range evChannels {
-					select {
-					case chann <- ev:
-						log.Info("event sent to channel", idx)
-					default:
-						log.Info("didnt send to channel", idx)
-					}
+			log.WithError(err).Fatal("Errored waiting for events")
+			return
+		case ev := <-cevents:
+			log.Info("event received")
+			for idx, chann := range evChannels {
+				select {
+				case chann <- ev:
+					log.Info("event sent to channel", idx)
+				default:
+					log.Info("didnt send to channel", idx)
 				}
 			}
 		}
-	}()
-
-	log.Info("waiting main thread")
-	<-mainError
+	}
 }
 
 // Close closes all aggregators and collectors

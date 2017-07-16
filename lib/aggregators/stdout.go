@@ -1,7 +1,7 @@
 package aggregators
 
 import (
-	"github.com/cirocosta/devents/lib/events"
+	"github.com/docker/docker/api/types/events"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,7 +16,7 @@ func NewStdout() (agg Stdout, err error) {
 	return
 }
 
-func (s Stdout) Run(evs <-chan events.ContainerEvent, errs <-chan error) {
+func (s Stdout) Run(evs <-chan events.Message, errs <-chan error) {
 	s.logger.Info("listening to events")
 
 	for {

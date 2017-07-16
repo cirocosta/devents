@@ -1,9 +1,9 @@
 package aggregators
 
 import (
-	"github.com/cirocosta/devents/lib/events"
+	"github.com/docker/docker/api/types/events"
 )
 
 type Aggregator interface {
-	Run(<-chan events.ContainerEvent, <-chan error)
+	Run(<-chan events.Message, <-chan error)
 }

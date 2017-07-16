@@ -1,9 +1,7 @@
 package aggregators
 
 import (
-	"strconv"
-
-	"github.com/cirocosta/devents/lib/events"
+	"github.com/docker/docker/api/types/events"
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/pkg/errors"
 
@@ -43,7 +41,29 @@ func NewFluentd(cfg FluentdConfig) (agg Fluentd, err error) {
 	return
 }
 
-func (f Fluentd) Run(evs <-chan events.ContainerEvent, errs <-chan error) {
+type FluentdMessage struct {
+	Status   string `json:"status"`
+	ID       string `json:"id"`
+	ActorId  string `json:"actorId"`
+	From     string `json:"from"`
+	Type     string `json:"type"`
+	Action   string `json:"action"`
+	TimeNano int64  `json:"timeNano"`
+}
+
+func ConvertEventToFluentdMessage(ev events.Message) FluentdMessage {
+	return FluentdMessage{
+		ID:       ev.ID,
+		ActorId:  ev.Actor.ID,
+		Status:   ev.Status,
+		From:     ev.From,
+		Type:     ev.Type,
+		Action:   ev.Action,
+		TimeNano: ev.TimeNano,
+	}
+}
+
+func (f Fluentd) Run(evs <-chan events.Message, errs <-chan error) {
 	var prefix = f.tagPrefix + ".container"
 
 	f.logger.Info("listening to events")
@@ -53,12 +73,7 @@ func (f Fluentd) Run(evs <-chan events.ContainerEvent, errs <-chan error) {
 			f.logger.WithError(err).Info("errored")
 		case ev := <-evs:
 			f.logger.Info("received evt")
-			err := f.fluent.Post(prefix, map[string]string{
-				"image":        ev.Image,
-				"action":       ev.Action,
-				"container_id": ev.ContainerId,
-				"time":         strconv.FormatInt(ev.TimeNano, 10),
-			})
+			err := f.fluent.Post(prefix, ConvertEventToFluentdMessage(ev))
 			if err != nil {
 				f.logger.
 					WithError(err).

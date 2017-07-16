@@ -1,9 +1,9 @@
 package collectors
 
 import (
-	"github.com/cirocosta/devents/lib/events"
+	"github.com/docker/docker/api/types/events"
 )
 
 type Collector interface {
-	Collect() (<-chan events.ContainerEvent, <-chan error)
+	Collect() (<-chan events.Message, <-chan error)
 }
