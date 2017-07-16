@@ -3,6 +3,7 @@ package aggregators
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/docker/docker/api/types/events"
 	"github.com/prometheus/client_golang/prometheus"
@@ -34,14 +35,16 @@ func NewPrometheus(cfg PrometheusConfig) (agg Prometheus, err error) {
 
 	var containerActionLabels = []string{"action"}
 	for _, label := range agg.labels {
-		containerActionLabels = append(containerActionLabels, label)
+		containerActionLabels = append(
+			containerActionLabels,
+			strings.Replace(label, ".", "_", -1))
 	}
 
 	agg.containerActions = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name:      "container_action",
 		Help:      "Docker container actions performed",
 		Subsystem: "devents",
-	}, []string{"action"})
+	}, containerActionLabels)
 
 	prometheus.MustRegister(agg.containerActions)
 
@@ -80,12 +83,10 @@ func (p Prometheus) Run(evs <-chan events.Message, errs <-chan error) {
 
 				attrs := ev.Actor.Attributes
 				for _, label := range p.labels {
-					v, present := attrs[label]
-					if !present {
-						v = "_none"
-					}
+					v, _ := attrs[label]
 					labelValues = append(labelValues, v)
 				}
+				log.Info("labelvalues", labelValues)
 				p.containerActions.WithLabelValues(labelValues...).Inc()
 			}
 

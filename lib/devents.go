@@ -37,8 +37,9 @@ func New(cfg Config) (dev Devents, err error) {
 			aggregator, err = aggregators.NewStdout()
 		case "prometheus":
 			aggregator, err = aggregators.NewPrometheus(aggregators.PrometheusConfig{
-				Path: cfg.MetricsPath,
-				Port: cfg.MetricsPort,
+				Path:   cfg.MetricsPath,
+				Port:   cfg.MetricsPort,
+				Labels: cfg.MetricsLabel,
 			})
 		default:
 			err = errors.Errorf(

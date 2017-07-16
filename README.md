@@ -17,12 +17,14 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [Collection](#collection)
+- [Usage](#usage)
   - [Container](#container)
 - [Aggregators](#aggregators)
   - [Stdout](#stdout)
   - [Fluentd](#fluentd)
 - [Metrics](#metrics)
+  - [Label Retrieval](#label-retrieval)
+    - [label](#label)
 - [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -31,8 +33,7 @@
 ### Usage
 
 ```
-devents --help
-Usage: devents [--fluentdhost FLUENTDHOST] [--fluentdtag FLUENTDTAG] [--fluentdport FLUENTDPORT] [--dockerhost DOCKERHOST] [--aggregator AGGREGATOR] [--metricspath METRICSPATH] [--metricsport METRICSPORT]
+Usage: devents [--fluentdhost FLUENTDHOST] [--fluentdtag FLUENTDTAG] [--fluentdport FLUENTDPORT] [--dockerhost DOCKERHOST] [--aggregator AGGREGATOR] [--metricspath METRICSPATH] [--metricsport METRICSPORT] [--metricslabel METRICSLABEL]
 
 Options:
   --fluentdhost FLUENTDHOST
@@ -49,8 +50,8 @@ Options:
                          path to use for prometheus scrapping [default: /metrics]
   --metricsport METRICSPORT
                          port to listen for prometheus scrapping [default: 9103]
-  --metricslabel METRICSPORT
-                         extra label to extract from attributes to include in the metrics
+  --metricslabel METRICSLABEL
+                         includes labels from containers|images in the timeseries
   --help, -h             display this help and exit
 ```
 
@@ -109,6 +110,37 @@ A great use of this is in metrics of user-defined namespacing. For instance:
 - containers are created with labels `com.mypaas.project=<project-id`
 - `devents` is initiated with `--metrics-label com.mypaas.project`
 - query for the instant rate of `project-specific` container creation: `irate(devents_container_start{com-mypaas-project="prjectId"}[5m])`
+
+Note.: prometheus labels can't have `.`, so, `.`s in the labels are replaced by `-`. For instance:
+
+
+1. Start `devents` with capturing of `com.docker.swarm.service.id` label:
+
+```
+devents \
+        --aggregator prometheus \
+        --metricslabel com.docker.swarm.service.id
+```
+
+2. Run a container with a label: 
+
+```sh
+docker run \
+        --label com.docker.swarm.service.id=123 \
+        -d \
+        nginx:alpine`
+```
+
+3. Check the /metrics endpoint:
+
+```sh
+# HELP devents_container_action Docker container actions performed
+# TYPE devents_container_action counter
+devents_container_action{action="create",com_docker_swarm_service_id=""} 1
+devents_container_action{action="create",com_docker_swarm_service_id="123"} 1
+devents_container_action{action="start",com_docker_swarm_service_id=""} 1
+devents_container_action{action="start",com_docker_swarm_service_id="123"} 1
+```
 
 
 ### LICENSE
