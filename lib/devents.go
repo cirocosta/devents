@@ -55,6 +55,7 @@ func New(cfg Config) (dev Devents, err error) {
 
 func (dev Devents) Run() {
 	log.Info("starting ev loop")
+	dev.collector.Collect()
 }
 
 // Close closes all aggregators and collectors

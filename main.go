@@ -30,5 +30,5 @@ func main() {
 	}
 	defer dev.Close()
 
-	log.Info("Success! Now waiting for events")
+	dev.Run()
 }
