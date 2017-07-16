@@ -16,3 +16,7 @@ import:
   version: v17.05.0-ce-rc3
   subpackages:
   - client
+- package: github.com/prometheus/client_golang
+  version: v0.8.0
+  subpackages:
+  - prometheus

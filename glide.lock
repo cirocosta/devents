@@ -1,5 +1,5 @@
-hash: d1ba33232b1f97aa397ec229a0a1da5fe43ae597139c9af4a869dc91d899c25f
-updated: 2017-07-16T13:38:37.738780769-03:00
+hash: 13c3d370a70b409828d10d635c162324aac0db130bcca44a0d32da0b0ca99eee
+updated: 2017-07-16T14:30:39.346720456-03:00
 imports:
 - name: github.com/alexflint/go-arg
   version: cef6506c97e5731da728c374ff3523e481026423
@@ -55,6 +55,10 @@ imports:
   version: 1612a298117663d7bc9a760ae20d383413859798
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/prometheus/client_golang
+  version: c5b7fccd204277076155f10851dad72b76a49317
+  subpackages:
+  - prometheus
 - name: github.com/Sirupsen/logrus
   version: 51dc0fc64317a2861273909081f9c315786533eb
   repo: https://github.com/sirupsen/logrus

@@ -27,21 +27,32 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-### Collection
 
-Once events are received `devents` is capable of enhancing the event message with more information. For instance, `{type=container,action=start}` can be enhanced with environment variables, ports and node information. 
+### Usage
 
-The extra parameters to gather are:
+```
+devents -h
+Usage: devents [--fluentdhost FLUENTDHOST] [--fluentdtag FLUENTDTAG] [--fluentdport FLUENTDPORT] [--dockerhost DOCKERHOST] [--aggregator AGGREGATOR] [--metricspath METRICSPATH] [--metricsport METRICSPORT]
 
-#### Container
-
-- `env`
-- `mounts`
-- `ports`
-
+Options:
+  --fluentdhost FLUENTDHOST
+                         fluentd host to connect to [default: localhost]
+  --fluentdtag FLUENTDTAG
+                         fluentd tag to add to the messages [default: devents]
+  --fluentdport FLUENTDPORT
+                         fluentd port to connect to [default: 24224]
+  --dockerhost DOCKERHOST
+                         docker daemon to connect to [default: unix://var/run/docker.sock]
+  --aggregator AGGREGATOR, -a AGGREGATOR
+                         aggregators to use (stdout|fluentd|prometheus) [default: []]
+  --metricspath METRICSPATH
+                         path to use for prometheus scrapping [default: /metrics]
+  --metricsport METRICSPORT
+                         port to listen for prometheus scrapping [default: 9103]
+  --help, -h             display this help and exit
+```
 
 ### Aggregators
-
 
 #### Stdout
 
@@ -49,7 +60,7 @@ Events are simply flushed to `stdout`:
 
 ```
 devents \
-        --stdout
+        --aggregator stdout
 ```
 
 
@@ -59,6 +70,7 @@ You can tie `fluentd` with `devents` agents by specifying fluentd configuration:
 
 ```
 devents \
+        --aggregator fluentd \
         --fluentd-port=24224 \
         --fluentd-host=localhost \
         --fluentd-tag=com.mytag
@@ -71,6 +83,7 @@ devents \
 
 ```
 devents \
+        --aggregator prometheus \
         --metrics-path /prometheus-metrics \
         --metrics-port 1337
 ```

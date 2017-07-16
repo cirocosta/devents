@@ -12,15 +12,20 @@ var (
 		FluentdTag:  "devents",
 		FluentdHost: "localhost",
 		FluentdPort: 24224,
-		Aggregator: []string{
-			"stdout",
-		},
+		Aggregator:  []string{},
+		MetricsPath: "/metrics",
+		MetricsPort: 9103,
 	}
 )
 
 func main() {
 	arg.MustParse(&config)
 	var logger = log.WithFields(config.ToLogrusFields())
+	if err := config.Validate(); err != nil {
+		logger.
+			WithError(err).
+			Fatal("Invalid configuration. See `devents -h`")
+	}
 
 	dev, err := lib.New(config)
 	if err != nil {
