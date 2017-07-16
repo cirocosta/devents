@@ -58,40 +58,51 @@ func (dev Devents) Run() {
 	var errChannels []chan error
 
 	for idx := range dev.aggregators {
-		evChannels = append(evChannels, make(chan events.ContainerEvent))
+		evChannels = append(evChannels, make(chan events.ContainerEvent, 1))
 		defer close(evChannels[idx])
 	}
 
 	for idx := range dev.aggregators {
-		errChannels = append(errChannels, make(chan error))
+		errChannels = append(errChannels, make(chan error, 1))
 		defer close(errChannels[idx])
 	}
 
 	for idx, agg := range dev.aggregators {
-		go func(agg aggregators.Aggregator) {
-			agg.Run(evChannels[idx], errChannels[idx])
-		}(agg)
+		go agg.Run(evChannels[idx], errChannels[idx])
 	}
 
 	log.Info("starting main ev loop")
 	cevents, cerrors := dev.collector.Collect()
-	for {
-		select {
-		case err := <-cerrors:
-			log.WithError(err).Error("error received")
-			for _, chann := range errChannels {
-				chann <- err
-			}
 
-			log.WithError(err).Fatal("Errored waiting for events")
-			return
-		case ev := <-cevents:
-			log.WithField("event", ev).Info("event received")
-			for _, chann := range evChannels {
-				chann <- ev
+	mainError := make(chan error)
+	go func() {
+		for {
+			select {
+			case err := <-cerrors:
+				log.WithError(err).Error("error received")
+				for _, chann := range errChannels {
+					chann <- err
+				}
+
+				log.WithError(err).Fatal("Errored waiting for events")
+				mainError <- err
+				return
+			case ev := <-cevents:
+				log.Info("event received")
+				for idx, chann := range evChannels {
+					select {
+					case chann <- ev:
+						log.Info("event sent to channel", idx)
+					default:
+						log.Info("didnt send to channel", idx)
+					}
+				}
 			}
 		}
-	}
+	}()
+
+	log.Info("waiting main thread")
+	<-mainError
 }
 
 // Close closes all aggregators and collectors

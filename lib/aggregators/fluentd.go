@@ -52,6 +52,7 @@ func (f Fluentd) Run(evs <-chan events.ContainerEvent, errs <-chan error) {
 		case err := <-errs:
 			f.logger.WithError(err).Info("errored")
 		case ev := <-evs:
+			f.logger.Info("received evt")
 			err := f.fluent.Post(prefix, map[string]string{
 				"image":        ev.Image,
 				"action":       ev.Action,
@@ -63,6 +64,7 @@ func (f Fluentd) Run(evs <-chan events.ContainerEvent, errs <-chan error) {
 					WithError(err).
 					Error("Errored sending ev data to fluentd")
 			}
+			f.logger.Info("evt sent to fluentd")
 		}
 	}
 

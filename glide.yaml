@@ -7,9 +7,9 @@ import:
 - package: github.com/sirupsen/logrus
   version: master
 - package: github.com/Sirupsen/logrus
+  version: master
   repo: https://github.com/sirupsen/logrus
   vcs: git
-  version: master
 - package: github.com/pkg/errors
   version: v0.8.0
 - package: github.com/docker/docker
