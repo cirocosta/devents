@@ -149,7 +149,6 @@ devents_container_action{action="start",com_docker_swarm_service_id=""} 1
 devents_container_action{action="start",com_docker_swarm_service_id="123"} 1
 ```
 
-
 ### LICENSE
 
 MIT
